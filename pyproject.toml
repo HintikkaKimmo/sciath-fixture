@@ -1,0 +1,28 @@
+[project]
+name = "sciath-fixtures"
+version = "0.1.0"
+description = "Generate ground truth fixture JSON from Yocto cve-check output for Sciath validation"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.9",
+    "rich>=13",
+]
+
+[project.scripts]
+sciath-fixtures = "sciath_fixtures.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sciath_fixtures"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7",
+]
