@@ -50,8 +50,8 @@ def test_generate_with_kconfig(
     # Should have kconfig data and at least one kconfig_disabled label.
     assert "kconfig" in data
     kconfig_labels = [
-        l for l in data["labels"]
-        if l["justification_category"] == "kconfig_disabled"
+        lbl for lbl in data["labels"]
+        if lbl["justification_category"] == "kconfig_disabled"
     ]
     assert len(kconfig_labels) >= 1
 

@@ -10,7 +10,6 @@ from sciath_fixtures.dtb_parser import parse_dtb
 from sciath_fixtures.fixture_builder import (
     VALID_CONFIDENCE,
     VALID_JUSTIFICATION,
-    VALID_SOURCE,
     VALID_TRUE_STATUS,
     build_fixture,
     validate_fixture,
@@ -53,7 +52,7 @@ def test_patched_becomes_fixed(tmp_cve_check: Path):
     fixture = build_fixture(report, name="test", source="public")
 
     patched_labels = [
-        l for l in fixture["labels"] if l["cve_id"] == "CVE-2022-1292"
+        lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2022-1292"
     ]
     assert len(patched_labels) == 1
     assert patched_labels[0]["true_status"] == "fixed"
@@ -66,7 +65,7 @@ def test_unpatched_becomes_affected(tmp_cve_check: Path):
     fixture = build_fixture(report, name="test", source="public")
 
     unpatched_labels = [
-        l for l in fixture["labels"] if l["cve_id"] == "CVE-2024-9143"
+        lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2024-9143"
     ]
     assert len(unpatched_labels) == 1
     assert unpatched_labels[0]["true_status"] == "affected"
@@ -78,7 +77,7 @@ def test_ignored_not_applicable(tmp_cve_check: Path):
     fixture = build_fixture(report, name="test", source="public")
 
     ignored_labels = [
-        l for l in fixture["labels"] if l["cve_id"] == "CVE-2023-9999"
+        lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2023-9999"
     ]
     assert len(ignored_labels) == 1
     assert ignored_labels[0]["true_status"] == "not_affected"
@@ -90,7 +89,7 @@ def test_ignored_ambiguous_skipped(tmp_cve_check: Path):
     fixture = build_fixture(report, name="test", source="public")
 
     # CVE-2023-8888 has "upstream-wontfix" detail — ambiguous, should be skipped.
-    ambiguous = [l for l in fixture["labels"] if l["cve_id"] == "CVE-2023-8888"]
+    ambiguous = [lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2023-8888"]
     assert len(ambiguous) == 0
 
 
@@ -109,7 +108,7 @@ def test_kconfig_overlay(tmp_cve_check: Path, tmp_kconfig: Path):
     fixture = build_fixture(report, name="test", source="public", kconfig=kconfig)
 
     # CVE-2020-12351 is a known BT CVE. BT=n in kconfig → not_affected.
-    bt_labels = [l for l in fixture["labels"] if l["cve_id"] == "CVE-2020-12351"]
+    bt_labels = [lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2020-12351"]
     assert len(bt_labels) == 1
     assert bt_labels[0]["true_status"] == "not_affected"
     assert bt_labels[0]["justification_category"] == "kconfig_disabled"
@@ -129,7 +128,7 @@ def test_kconfig_no_override_when_enabled(tmp_cve_check: Path, tmp_path: Path):
     kconfig = parse_kconfig(kconfig_path)
     fixture = build_fixture(report, name="test", source="public", kconfig=kconfig)
 
-    bt_labels = [l for l in fixture["labels"] if l["cve_id"] == "CVE-2020-12351"]
+    bt_labels = [lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2020-12351"]
     assert len(bt_labels) == 1
     assert bt_labels[0]["true_status"] == "affected"
 
@@ -155,7 +154,7 @@ def test_dedup_same_component(tmp_path: Path):
     report = parse_cve_check(path)
     fixture = build_fixture(report, name="test", source="public")
 
-    labels_for_cve = [l for l in fixture["labels"] if l["cve_id"] == "CVE-2023-0001"]
+    labels_for_cve = [lbl for lbl in fixture["labels"] if lbl["cve_id"] == "CVE-2023-0001"]
     assert len(labels_for_cve) == 1
     # fixed (Patched) should win over affected (Unpatched).
     assert labels_for_cve[0]["true_status"] == "fixed"
@@ -238,17 +237,6 @@ def test_validate_bad_source():
 def test_dtb_overlay(tmp_cve_check: Path, tmp_dtb: Path, tmp_kconfig: Path):
     """DTB overlay should mark CVEs as hw_not_present when peripheral disabled."""
     # Create a cve-check with a known SPI CVE.
-    data = {
-        "package": [
-            {
-                "name": "linux-yocto",
-                "version": "5.15.0",
-                "issue": [
-                    {"id": "CVE-2020-12351", "status": "Unpatched"},
-                ],
-            },
-        ],
-    }
     # CVE-2020-12351 is bluetooth, and BT is not set in kconfig → kconfig wins first.
     # Let's test with a custom setup where kconfig doesn't suppress but DTB does.
     # For that we need a CVE with SPI subsystem tag. We don't have one in KNOWN_CVE_SUBSYSTEMS.

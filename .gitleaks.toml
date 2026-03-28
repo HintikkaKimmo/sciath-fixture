@@ -1,0 +1,15 @@
+title = "sciath-fixtures gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist"
+
+paths = [
+    '''\.venv/''',
+    '''venv/''',
+    '''\.pytest_cache/''',
+    '''__pycache__/''',
+    '''uv\.lock''',
+]

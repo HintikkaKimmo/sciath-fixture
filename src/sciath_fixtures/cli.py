@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-import sys
 from collections import Counter
 from pathlib import Path
 
@@ -140,8 +139,8 @@ def generate(
 
     # Print summary.
     labels = fixture["labels"]
-    status_counts = Counter(l["true_status"] for l in labels)
-    justification_counts = Counter(l["justification_category"] for l in labels)
+    status_counts = Counter(lbl["true_status"] for lbl in labels)
+    justification_counts = Counter(lbl["justification_category"] for lbl in labels)
 
     table = Table(title="Fixture Summary")
     table.add_column("Metric", style="bold")
@@ -219,20 +218,20 @@ def stats(
     table.add_row("Components", "", str(len(data.get("sbom", []))))
     table.add_row("Total labels", "", str(len(labels)))
 
-    status_counts = Counter(l.get("true_status") for l in labels)
+    status_counts = Counter(lbl.get("true_status") for lbl in labels)
     for status, count in sorted(status_counts.items()):
         table.add_row("Status", status, str(count))
 
-    justification_counts = Counter(l.get("justification_category") for l in labels)
+    justification_counts = Counter(lbl.get("justification_category") for lbl in labels)
     for just, count in sorted(justification_counts.items()):
         table.add_row("Justification", just, str(count))
 
-    confidence_counts = Counter(l.get("confidence", "high") for l in labels)
+    confidence_counts = Counter(lbl.get("confidence", "high") for lbl in labels)
     for conf, count in sorted(confidence_counts.items()):
         table.add_row("Confidence", conf, str(count))
 
     # Component breakdown.
-    comp_counts = Counter(l.get("component_name") for l in labels)
+    comp_counts = Counter(lbl.get("component_name") for lbl in labels)
     for comp, count in comp_counts.most_common(10):
         table.add_row("Component", comp, str(count))
 

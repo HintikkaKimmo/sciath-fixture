@@ -11,6 +11,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from sciath_fixtures.cve_check_parser import CveCheckReport, CveEntry
 from sciath_fixtures.dtb_parser import DTBNode
@@ -185,7 +186,7 @@ def _classify_cve(
                 f"Yocto cve-check reports {entry.cve_id} as Patched "
                 f"for {component_name} {component_version}."
             ),
-            evidence=[f"cve-check: status=Patched"],
+            evidence=["cve-check: status=Patched"],
             confidence="high",
             cvss_score=cvss,
         )
@@ -210,7 +211,7 @@ def _classify_cve(
                         f"{entry.cve_id} requires this subsystem."
                     ),
                     evidence=[
-                        f"cve-check: status=Unpatched",
+                        "cve-check: status=Unpatched",
                         f"kconfig: CONFIG_{symbol}=n",
                         f"subsystem: {', '.join(subsystem_tags)}",
                     ],
@@ -233,7 +234,7 @@ def _classify_cve(
                         f"{entry.cve_id} requires this hardware."
                     ),
                     evidence=[
-                        f"cve-check: status=Unpatched",
+                        "cve-check: status=Unpatched",
                         f"dtb: {ptype} peripheral disabled",
                         f"subsystem: {', '.join(subsystem_tags)}",
                     ],
@@ -252,7 +253,7 @@ def _classify_cve(
                 f"Yocto cve-check reports {entry.cve_id} as Unpatched "
                 f"for {component_name} {component_version}."
             ),
-            evidence=[f"cve-check: status=Unpatched"],
+            evidence=["cve-check: status=Unpatched"],
             confidence="high",
             cvss_score=cvss,
         )
@@ -271,7 +272,7 @@ def _classify_cve(
                     f"(not-applicable) for {component_name} {component_version}."
                 ),
                 evidence=[
-                    f"cve-check: status=Ignored",
+                    "cve-check: status=Ignored",
                     f"detail: {entry.detail}",
                 ],
                 confidence="high",
@@ -352,14 +353,14 @@ def build_fixture(
     min_cvss: float | None = None,
     notes: str = "",
     input_files: dict[str, Path] | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Build a complete Sciath fixture JSON dict from parsed data."""
     if source not in VALID_SOURCE:
         raise ValueError(f"Invalid source '{source}', must be one of {VALID_SOURCE}")
 
     # Collect labels and SBOM components.
     labels: list[LabelCandidate] = []
-    components: dict[str, dict] = {}  # keyed by (name, version)
+    components: dict[str, dict[str, Any]] = {}  # keyed by (name, version)
 
     for pkg in report.packages:
         canonical = map_recipe(pkg.name)
@@ -408,7 +409,7 @@ def build_fixture(
         if label.cve_id in seen_cves:
             continue
         seen_cves.add(label.cve_id)
-        cve_data: dict = {
+        cve_data: dict[str, Any] = {
             "cve_id": label.cve_id,
             "description": "",
             "cvss_score": label.cvss_score or 7.5,
@@ -500,23 +501,23 @@ def build_fixture(
             })
 
     # Assemble fixture.
-    fixture: dict = {
+    fixture: dict[str, Any] = {
         "name": name,
         "source": source,
-        "notes": notes or f"Auto-generated from Yocto cve-check output.",
+        "notes": notes or "Auto-generated from Yocto cve-check output.",
         "sbom": list(components.values()),
         "labels": [
             {
-                "cve_id": l.cve_id,
-                "component_name": l.component_name,
-                "component_version": l.component_version,
-                "true_status": l.true_status,
-                "justification_category": l.justification_category,
-                "justification_text": l.justification_text,
-                "evidence": l.evidence,
-                "confidence": l.confidence,
+                "cve_id": lbl.cve_id,
+                "component_name": lbl.component_name,
+                "component_version": lbl.component_version,
+                "true_status": lbl.true_status,
+                "justification_category": lbl.justification_category,
+                "justification_text": lbl.justification_text,
+                "evidence": lbl.evidence,
+                "confidence": lbl.confidence,
             }
-            for l in labels
+            for lbl in labels
         ],
     }
 
@@ -541,7 +542,7 @@ def build_fixture(
     return fixture
 
 
-def validate_fixture(fixture: dict) -> list[str]:
+def validate_fixture(fixture: dict[str, Any]) -> list[str]:
     """Validate a fixture dict against Sciath's expected schema.
 
     Returns a list of error strings (empty = valid).

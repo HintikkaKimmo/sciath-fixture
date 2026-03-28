@@ -48,7 +48,7 @@ def apply_max_labels(
 
     sorted_labels = sorted(
         labels,
-        key=lambda l: (_STATUS_PRIORITY.get(l.true_status, 99), l.cve_id),
+        key=lambda lbl: (_STATUS_PRIORITY.get(lbl.true_status, 99), lbl.cve_id),
     )
     logger.info(
         "Capping labels from %d to %d (--max-labels)", len(labels), max_labels
@@ -63,7 +63,7 @@ def apply_min_cvss(
 
     Labels without a CVSS score are kept (conservative — don't drop unknowns).
     """
-    has_scores = any(l.cvss_score is not None for l in labels)
+    has_scores = any(lbl.cvss_score is not None for lbl in labels)
     if not has_scores:
         logger.warning(
             "--min-cvss specified but no CVSS scores available. "
@@ -72,7 +72,7 @@ def apply_min_cvss(
         )
         return labels
 
-    result = [l for l in labels if l.cvss_score is None or l.cvss_score >= min_cvss]
+    result = [lbl for lbl in labels if lbl.cvss_score is None or lbl.cvss_score >= min_cvss]
     dropped = len(labels) - len(result)
     if dropped:
         logger.info("Dropped %d labels below CVSS %.1f", dropped, min_cvss)

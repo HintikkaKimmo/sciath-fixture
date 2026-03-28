@@ -60,7 +60,7 @@ def test_min_cvss_filters():
     ]
     result = apply_min_cvss(labels, 4.0)
     assert len(result) == 2
-    assert all(l.cvss_score >= 4.0 for l in result)
+    assert all(lbl.cvss_score >= 4.0 for lbl in result)
 
 
 def test_min_cvss_keeps_no_score():
@@ -72,7 +72,7 @@ def test_min_cvss_keeps_no_score():
     ]
     result = apply_min_cvss(labels, 4.0)
     assert len(result) == 2
-    cve_ids = {l.cve_id for l in result}
+    cve_ids = {lbl.cve_id for lbl in result}
     assert "CVE-0001" in cve_ids
     assert "CVE-0002" in cve_ids  # None score → kept
 
