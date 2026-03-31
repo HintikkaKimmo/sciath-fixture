@@ -17,24 +17,24 @@ pip install -e ".[dev]"
 ```bash
 # Basic: from cve-check only
 sciath-fixtures generate \
-  --cve-check sources/kirkstone-rpi4/cve-check-report.json \
+  --cve-check /path/to/cve-check-report.json \
   --name kirkstone_rpi4_cvecheck \
   --source public \
   --output output/
 
 # With kconfig overlay (the value-add — proves Sciath's hardware-aware suppression)
 sciath-fixtures generate \
-  --cve-check sources/kirkstone-rpi4/cve-check-report.json \
-  --kconfig sources/kirkstone-rpi4/dot-config \
+  --cve-check /path/to/cve-check-report.json \
+  --kconfig /path/to/dot-config \
   --name kirkstone_rpi4_kconfig \
   --source public \
   --output output/
 
 # With DTB overlay
 sciath-fixtures generate \
-  --cve-check sources/kirkstone-rpi4/cve-check-report.json \
-  --kconfig sources/kirkstone-rpi4/dot-config \
-  --dtb sources/kirkstone-rpi4/device-tree.dts \
+  --cve-check /path/to/cve-check-report.json \
+  --kconfig /path/to/dot-config \
+  --dtb /path/to/device-tree.dts \
   --name kirkstone_rpi4_full \
   --source public \
   --output output/

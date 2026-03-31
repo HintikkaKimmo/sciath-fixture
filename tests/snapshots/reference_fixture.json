@@ -1,0 +1,153 @@
+{
+  "enriched_cves": [
+    {
+      "affected_versions": [],
+      "cpe_list": [],
+      "cve_id": "CVE-2022-1292",
+      "cvss_score": 7.5,
+      "cvss_vector": "",
+      "description": "",
+      "sources": [
+        "ground_truth"
+      ],
+      "subsystem_tags": []
+    },
+    {
+      "affected_versions": [],
+      "cpe_list": [],
+      "cve_id": "CVE-2024-9143",
+      "cvss_score": 7.5,
+      "cvss_vector": "",
+      "description": "",
+      "sources": [
+        "ground_truth"
+      ],
+      "subsystem_tags": []
+    },
+    {
+      "affected_versions": [],
+      "cpe_list": [],
+      "cve_id": "CVE-2020-12351",
+      "cvss_score": 7.5,
+      "cvss_vector": "",
+      "description": "",
+      "sources": [
+        "ground_truth"
+      ],
+      "subsystem_tags": [
+        "bluetooth"
+      ]
+    },
+    {
+      "affected_versions": [],
+      "cpe_list": [],
+      "cve_id": "CVE-2023-1234",
+      "cvss_score": 7.5,
+      "cvss_vector": "",
+      "description": "",
+      "sources": [
+        "ground_truth"
+      ],
+      "subsystem_tags": []
+    },
+    {
+      "affected_versions": [],
+      "cpe_list": [],
+      "cve_id": "CVE-2023-9999",
+      "cvss_score": 7.5,
+      "cvss_vector": "",
+      "description": "",
+      "sources": [
+        "ground_truth"
+      ],
+      "subsystem_tags": []
+    }
+  ],
+  "labels": [
+    {
+      "component_name": "openssl",
+      "component_version": "3.0.19",
+      "confidence": "high",
+      "cve_id": "CVE-2022-1292",
+      "evidence": [
+        "cve-check: status=Patched"
+      ],
+      "justification_category": "patched_backport",
+      "justification_text": "Yocto cve-check reports CVE-2022-1292 as Patched for openssl 3.0.19.",
+      "true_status": "fixed"
+    },
+    {
+      "component_name": "openssl",
+      "component_version": "3.0.19",
+      "confidence": "high",
+      "cve_id": "CVE-2024-9143",
+      "evidence": [
+        "cve-check: status=Unpatched"
+      ],
+      "justification_category": "confirmed_affected",
+      "justification_text": "Yocto cve-check reports CVE-2024-9143 as Unpatched for openssl 3.0.19.",
+      "true_status": "affected"
+    },
+    {
+      "component_name": "linux-kernel",
+      "component_version": "5.15.150",
+      "confidence": "high",
+      "cve_id": "CVE-2020-12351",
+      "evidence": [
+        "cve-check: status=Unpatched"
+      ],
+      "justification_category": "confirmed_affected",
+      "justification_text": "Yocto cve-check reports CVE-2020-12351 as Unpatched for linux-kernel 5.15.150.",
+      "true_status": "affected"
+    },
+    {
+      "component_name": "linux-kernel",
+      "component_version": "5.15.150",
+      "confidence": "high",
+      "cve_id": "CVE-2023-1234",
+      "evidence": [
+        "cve-check: status=Patched"
+      ],
+      "justification_category": "patched_backport",
+      "justification_text": "Yocto cve-check reports CVE-2023-1234 as Patched for linux-kernel 5.15.150.",
+      "true_status": "fixed"
+    },
+    {
+      "component_name": "curl",
+      "component_version": "8.5.0",
+      "confidence": "high",
+      "cve_id": "CVE-2023-9999",
+      "evidence": [
+        "cve-check: status=Ignored",
+        "detail: not-applicable-config: version not in range"
+      ],
+      "justification_category": "version_not_affected",
+      "justification_text": "Yocto cve-check marks CVE-2023-9999 as Ignored (not-applicable) for curl 8.5.0.",
+      "true_status": "not_affected"
+    }
+  ],
+  "name": "snapshot-test",
+  "notes": "Auto-generated from Yocto cve-check output.",
+  "sbom": [
+    {
+      "component_type": "library",
+      "name": "openssl",
+      "purl": "pkg:generic/openssl@3.0.19",
+      "version": "3.0.19"
+    },
+    {
+      "component_type": "operating-system",
+      "name": "linux-kernel",
+      "purl": "pkg:generic/linux-kernel@5.15.150",
+      "version": "5.15.150"
+    },
+    {
+      "component_type": "library",
+      "name": "curl",
+      "purl": "pkg:generic/curl@8.5.0",
+      "version": "8.5.0"
+    }
+  ],
+  "schema_version": "1.0",
+  "source": "synthetic"
+}

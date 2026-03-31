@@ -9,3 +9,4 @@ sources/
 output/*.json
 .mypy_cache/
 .pytest_cache/
+.gstack/

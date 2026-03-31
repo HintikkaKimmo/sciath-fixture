@@ -33,13 +33,16 @@ sciath-fixture/
 │   ├── cve_check_parser.py — Parse Yocto cve-check JSON reports
 │   ├── kconfig_parser.py   — Parse kernel .config files
 │   ├── dtb_parser.py       — Parse device tree .dts files
-│   ├── filters.py          — Label classification logic
-│   ├── fixture_builder.py  — Build fixture JSON from parsed data
-│   └── name_mapper.py      — Package name normalisation
-├── sources/                — Raw input artifacts (cve-check, .config, .dts)
-│   └── kirkstone-rpi4/     — Kirkstone RPi4 build artifacts
+│   ├── filters.py          — Label filtering (max_labels, min_cvss)
+│   ├── fixture_builder.py  — Orchestrator: build fixture JSON from parsed data
+│   ├── classifier.py       — CVE classification: _classify_cve(), suppression checks
+│   ├── mappings.py         — Subsystem constants, CVE-to-subsystem tag lookups
+│   ├── name_mapper.py      — Package name normalisation
+│   └── data/
+│       └── known_cve_subsystems.json — CVE-to-subsystem mappings (data, not code)
 ├── output/                 — Generated fixture JSON files
 ├── tests/                  — pytest test suite
+│   └── snapshots/          — Golden file references for output stability
 └── pyproject.toml          — Package config, dependencies, tool settings
 ```
 
@@ -75,6 +78,27 @@ Yocto cve-check JSON + (optional) kernel .config + (optional) .dts
 | Unpatched + DTB disabled | not_affected | hw_not_present | high |
 | Ignored (not-applicable) | not_affected | version_not_affected | high |
 | Ignored (other) | skipped | — | — |
+
+**Suppression precedence:** kconfig > DTB > default (affected). When both kconfig
+and DTB could suppress a CVE, kconfig wins because it represents a compile-time
+decision (feature compiled out) which is more definitive than DTB (hardware not
+present but code still exists). This is implemented in `classifier.py`.
+
+## Module responsibilities
+
+| Module | Role |
+|--------|------|
+| `fixture_builder.py` | **Orchestrator** — `build_fixture()` and `validate_fixture()`. Calls parsers, classifier, filters. |
+| `classifier.py` | **Classification engine** — `_classify_cve()`, `_check_kconfig_suppression()`, `_check_dtb_suppression()`, `_dedup_labels()` |
+| `mappings.py` | **Data lookups** — `KNOWN_CVE_SUBSYSTEMS`, `SUBSYSTEM_TO_SYMBOL`, `PERIPHERAL_TO_SYMBOL`, `_get_subsystem_tags()` |
+| `data/known_cve_subsystems.json` | **Static data** — CVE-to-subsystem mappings (extend this file, not Python code) |
+| `filters.py` | **Post-processing** — `apply_max_labels()`, `apply_min_cvss()` |
+
+## Schema versioning
+
+Generated fixture JSON includes `"schema_version": "1.0"` as the first field.
+This allows the Sciath backend to detect format changes and handle backward
+compatibility. Bump the version when the fixture output structure changes.
 
 ---
 
@@ -137,4 +161,6 @@ do not need a CHANGELOG entry.
 | **This repo** | Fixture generator | Converts build artifacts → labeled test fixtures |
 
 The fixture JSON schema is defined by what `load_ground_truth` expects. If the
-Sciath backend changes the schema, update `fixture_builder.py` to match.
+Sciath backend changes the schema, update `fixture_builder.py` to match and bump
+`schema_version`. To add new CVE-to-subsystem mappings, edit
+`data/known_cve_subsystems.json` (not Python code).
