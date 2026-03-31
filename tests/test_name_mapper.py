@@ -1,19 +1,27 @@
 """Tests for name_mapper module."""
 
+import pytest
+
 from sciath_fixtures.name_mapper import map_recipe, should_skip_recipe
 
 
-def test_known_recipe():
-    assert map_recipe("openssl") == "openssl"
-    assert map_recipe("curl") == "curl"
-    assert map_recipe("busybox") == "busybox"
+@pytest.mark.parametrize("recipe,expected", [
+    ("openssl", "openssl"),
+    ("curl", "curl"),
+    ("busybox", "busybox"),
+])
+def test_known_recipe(recipe: str, expected: str):
+    assert map_recipe(recipe) == expected
 
 
-def test_kernel_variants():
-    assert map_recipe("linux-yocto") == "linux-kernel"
-    assert map_recipe("linux-raspberrypi") == "linux-kernel"
-    assert map_recipe("linux-imx") == "linux-kernel"
-    assert map_recipe("linux-ti") == "linux-kernel"
+@pytest.mark.parametrize("recipe", [
+    "linux-yocto",
+    "linux-raspberrypi",
+    "linux-imx",
+    "linux-ti",
+])
+def test_kernel_variants(recipe: str):
+    assert map_recipe(recipe) == "linux-kernel"
 
 
 def test_native_skip():

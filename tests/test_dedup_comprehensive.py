@@ -2,33 +2,21 @@
 
 from __future__ import annotations
 
-from sciath_fixtures.filters import LabelCandidate
 from sciath_fixtures.fixture_builder import _dedup_labels
+from tests.conftest import _make_label
 
-
-def _make_label(
-    cve_id: str = "CVE-2023-0001",
-    component: str = "linux-kernel",
-    status: str = "affected",
-    justification: str = "confirmed_affected",
-) -> LabelCandidate:
-    return LabelCandidate(
-        cve_id=cve_id,
-        component_name=component,
-        component_version="5.15.0",
-        true_status=status,
-        justification_category=justification,
-        justification_text="test",
-        evidence=["test"],
-        confidence="high",
-    )
+# Shared overrides so dedup tests use a consistent (cve_id, component_name) pair.
+_KW = dict(component_name="linux-kernel", component_version="5.15.0",
+           evidence=["test"])
 
 
 def test_fixed_beats_not_affected():
     """fixed > not_affected for same (cve_id, component)."""
     labels = [
-        _make_label(status="not_affected", justification="kconfig_disabled"),
-        _make_label(status="fixed", justification="patched_backport"),
+        _make_label("CVE-2023-0001", "not_affected",
+                    justification_category="kconfig_disabled", **_KW),
+        _make_label("CVE-2023-0001", "fixed",
+                    justification_category="patched_backport", **_KW),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 1
@@ -38,8 +26,9 @@ def test_fixed_beats_not_affected():
 def test_fixed_beats_affected():
     """fixed > affected for same (cve_id, component)."""
     labels = [
-        _make_label(status="affected", justification="confirmed_affected"),
-        _make_label(status="fixed", justification="patched_backport"),
+        _make_label("CVE-2023-0001", "affected", **_KW),
+        _make_label("CVE-2023-0001", "fixed",
+                    justification_category="patched_backport", **_KW),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 1
@@ -49,8 +38,9 @@ def test_fixed_beats_affected():
 def test_not_affected_beats_affected():
     """not_affected > affected for same (cve_id, component)."""
     labels = [
-        _make_label(status="affected", justification="confirmed_affected"),
-        _make_label(status="not_affected", justification="kconfig_disabled"),
+        _make_label("CVE-2023-0001", "affected", **_KW),
+        _make_label("CVE-2023-0001", "not_affected",
+                    justification_category="kconfig_disabled", **_KW),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 1
@@ -60,8 +50,10 @@ def test_not_affected_beats_affected():
 def test_not_affected_beats_unknown():
     """not_affected > unknown for same (cve_id, component)."""
     labels = [
-        _make_label(status="unknown", justification="insufficient_evidence"),
-        _make_label(status="not_affected", justification="kconfig_disabled"),
+        _make_label("CVE-2023-0001", "unknown",
+                    justification_category="insufficient_evidence", **_KW),
+        _make_label("CVE-2023-0001", "not_affected",
+                    justification_category="kconfig_disabled", **_KW),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 1
@@ -71,8 +63,9 @@ def test_not_affected_beats_unknown():
 def test_affected_beats_unknown():
     """affected > unknown for same (cve_id, component)."""
     labels = [
-        _make_label(status="unknown", justification="insufficient_evidence"),
-        _make_label(status="affected", justification="confirmed_affected"),
+        _make_label("CVE-2023-0001", "unknown",
+                    justification_category="insufficient_evidence", **_KW),
+        _make_label("CVE-2023-0001", "affected", **_KW),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 1
@@ -82,9 +75,11 @@ def test_affected_beats_unknown():
 def test_triple_duplicate():
     """Three entries for same pair -> highest priority wins."""
     labels = [
-        _make_label(status="unknown", justification="insufficient_evidence"),
-        _make_label(status="affected", justification="confirmed_affected"),
-        _make_label(status="fixed", justification="patched_backport"),
+        _make_label("CVE-2023-0001", "unknown",
+                    justification_category="insufficient_evidence", **_KW),
+        _make_label("CVE-2023-0001", "affected", **_KW),
+        _make_label("CVE-2023-0001", "fixed",
+                    justification_category="patched_backport", **_KW),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 1
@@ -94,10 +89,15 @@ def test_triple_duplicate():
 def test_no_duplicates_preserved():
     """Different (cve_id, component) pairs are all preserved."""
     labels = [
-        _make_label(cve_id="CVE-2023-0001", component="openssl", status="affected"),
-        _make_label(cve_id="CVE-2023-0002", component="openssl", status="fixed"),
-        _make_label(cve_id="CVE-2023-0001", component="curl", status="not_affected",
-                    justification="kconfig_disabled"),
+        _make_label("CVE-2023-0001", "affected",
+                    component_name="openssl", component_version="5.15.0",
+                    evidence=["test"]),
+        _make_label("CVE-2023-0002", "fixed",
+                    component_name="openssl", component_version="5.15.0",
+                    justification_category="patched_backport", evidence=["test"]),
+        _make_label("CVE-2023-0001", "not_affected",
+                    component_name="curl", component_version="5.15.0",
+                    justification_category="kconfig_disabled", evidence=["test"]),
     ]
     result = _dedup_labels(labels)
     assert len(result) == 3

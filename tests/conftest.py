@@ -7,6 +7,24 @@ from pathlib import Path
 
 import pytest
 
+from sciath_fixtures.filters import LabelCandidate
+
+
+def _make_label(cve_id: str, status: str, **overrides: object) -> LabelCandidate:
+    """Factory for LabelCandidate with sensible defaults."""
+    defaults: dict[str, object] = dict(
+        cve_id=cve_id,
+        component_name="test",
+        component_version="1.0",
+        true_status=status,
+        justification_category="confirmed_affected",
+        justification_text="test",
+        evidence=[],
+        confidence="high",
+    )
+    defaults.update(overrides)
+    return LabelCandidate(**defaults)  # type: ignore[arg-type]
+
 
 @pytest.fixture
 def tmp_cve_check(tmp_path: Path) -> Path:

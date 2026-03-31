@@ -1,20 +1,7 @@
 """Tests for filters module."""
 
-from sciath_fixtures.filters import LabelCandidate, apply_max_labels, apply_min_cvss
-
-
-def _make_label(cve_id: str, status: str, cvss: float | None = None) -> LabelCandidate:
-    return LabelCandidate(
-        cve_id=cve_id,
-        component_name="test",
-        component_version="1.0",
-        true_status=status,
-        justification_category="confirmed_affected",
-        justification_text="test",
-        evidence=[],
-        confidence="high",
-        cvss_score=cvss,
-    )
+from sciath_fixtures.filters import apply_max_labels, apply_min_cvss
+from tests.conftest import _make_label
 
 
 def test_max_labels_caps():
@@ -54,9 +41,9 @@ def test_max_labels_same_status_sorted_by_cve_id():
 
 def test_min_cvss_filters():
     labels = [
-        _make_label("CVE-0001", "affected", cvss=9.8),
-        _make_label("CVE-0002", "affected", cvss=3.1),
-        _make_label("CVE-0003", "affected", cvss=7.5),
+        _make_label("CVE-0001", "affected", cvss_score=9.8),
+        _make_label("CVE-0002", "affected", cvss_score=3.1),
+        _make_label("CVE-0003", "affected", cvss_score=7.5),
     ]
     result = apply_min_cvss(labels, 4.0)
     assert len(result) == 2
@@ -66,9 +53,9 @@ def test_min_cvss_filters():
 def test_min_cvss_keeps_no_score():
     """Labels without CVSS scores should be kept (conservative)."""
     labels = [
-        _make_label("CVE-0001", "affected", cvss=9.8),
-        _make_label("CVE-0002", "affected", cvss=None),
-        _make_label("CVE-0003", "affected", cvss=2.0),
+        _make_label("CVE-0001", "affected", cvss_score=9.8),
+        _make_label("CVE-0002", "affected", cvss_score=None),
+        _make_label("CVE-0003", "affected", cvss_score=2.0),
     ]
     result = apply_min_cvss(labels, 4.0)
     assert len(result) == 2
