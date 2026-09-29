@@ -1,6 +1,9 @@
 [project]
 name = "sciath-fixtures"
 version = "0.1.0"
+readme = "README.md"
+license = "LicenseRef-PolyForm-Shield-1.0.0"
+license-files = ["LICENSE.md", "NOTICE"]
 description = "Generate ground truth fixture JSON from Yocto cve-check output for Sciath validation"
 requires-python = ">=3.10"
 dependencies = [
@@ -12,7 +15,7 @@ dependencies = [
 sciath-fixtures = "sciath_fixtures.cli:app"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
